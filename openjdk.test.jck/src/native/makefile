@@ -23,9 +23,6 @@
 # If JAVA_HOME is not set, look for jar on the PATH.
 
 D:=/
-ifneq (,$(findstring win,$(PLATFORM)))
-  D:=\\
-endif
 ifneq (,$(JAVA_HOME))
   JAR:=$(JAVA_HOME)$(D)bin$(D)jar
   $(warning JAVA_HOME set to $(JAVA_HOME). Using $(JAR) to create jar files)
@@ -175,9 +172,6 @@ ifeq ($(PLATFORM),win_x86-32)
 	LIBPREF=
 	LIBEXT=dll
 	OFLAG=/Fe
-	CLEANDIR=rmdir /S /Q
-	CLEANFILE=del /Q /S
-	COPYDIR=xcopy /Q /H /R /E /Y /I
 endif
 
 ifeq ($(PLATFORM),win_x86-64)
@@ -187,9 +181,6 @@ ifeq ($(PLATFORM),win_x86-64)
 	LIBPREF=
 	LIBEXT=dll
 	OFLAG=/Fe
-	CLEANDIR=rmdir /S /Q
-	CLEANFILE=del /Q /S
-	COPYDIR=xcopy  /Q /H /R /E /Y /I
 endif
 
 ifeq ($(PLATFORM),hp_ux-32)
@@ -297,15 +288,12 @@ $(LIBPREF)genrandom.$(LIBEXT):com_sun_management_mbeans_loading_RandomGen.c
 	$(RANDOMGEN)
 
 createdir:
-ifneq (win,$(findstring win,$(PLATFORM)))
 	mkdir -p $(FULLOUTDIR)
-else 
-	if not exist $(FULLOUTDIR) mkdir $(subst /,\,$(FULLOUTDIR))
-endif
 	
 installjmx:
 #ifneq (win,$(findstring win,$(PLATFORM)))
 	$(COPYDIR) $(SRCDIR)$(D)tests$(D)api$(D)javax_management$(D)loading$(D)data$(D)* $(FULLOUTDIR)$(D).
+	chmod 744 $(FULLOUTDIR)/archives/MBeanUseNativeLib.jar
 	cd $(FULLOUTDIR) && $(JAR) uf $(FULLOUTDIR)/archives/MBeanUseNativeLib.jar $(LIBPREF)systemInfo.$(LIBEXT)
 	cd $(FULLOUTDIR) && $(JAR) cf $(FULLOUTDIR)/archives/OnlyLibs.jar $(LIBPREF)jmxlibid.$(LIBEXT)
 	$(CLEANFILE) $(FULLOUTDIR)$(D)$(LIBPREF)systemInfo.$(LIBEXT) 
